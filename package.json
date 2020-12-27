@@ -1,0 +1,25 @@
+{
+  "name": "prerelease",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc ./src/prerelease.ts --outDir ./dist",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fucesa/prerelease.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/fucesa/prerelease/issues"
+  },
+  "homepage": "https://github.com/fucesa/prerelease#readme",
+  "devDependencies": {
+    "@actions/core": "^1.2.6",
+    "@actions/github": "^4.0.0",
+    "typescript": "^4.1.3"
+  }
+}

@@ -1,0 +1,16 @@
+name: "prerelease"
+description: "Gets Teia Prerelease Outputs"
+author: "cesargdm"
+inputs:
+  release-branch:
+    description: Release branch name
+    default: main
+    required: false
+outputs:
+  app-version:
+    description: "App version based on package.json or git commit hash"
+  branch:
+    description: "Current git branch."
+runs:
+  using: "node12"
+  main: "dist/prerelease.js"

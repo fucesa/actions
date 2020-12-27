@@ -1,12 +1,11 @@
 import * as childProcess from "child_process";
-import * as findup from "findup-sync";
-
-var packageJson = require(findup("package.json"));
-
-const { version } = require(packageJson);
 
 import * as core from "@actions/core";
-// import * as github from '@actions/github'
+import * as findup from "findup-sync";
+
+var packageJson = require(findup("package.json") as string);
+
+const { version } = require(packageJson);
 
 function exec(command: string): Promise<string> {
   return new Promise((resolve, reject) =>

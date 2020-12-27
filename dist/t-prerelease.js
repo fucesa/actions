@@ -37,11 +37,10 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 exports.__esModule = true;
 var childProcess = require("child_process");
+var core = require("@actions/core");
 var findup = require("findup-sync");
 var packageJson = require(findup("package.json"));
 var version = require(packageJson).version;
-var core = require("@actions/core");
-// import * as github from '@actions/github'
 function exec(command) {
     return new Promise(function (resolve, reject) {
         return childProcess.exec(command, function (error, stdout) {

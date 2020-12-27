@@ -26,7 +26,7 @@ function exec(command: string): Promise<string> {
 
 const run = async (): Promise<void> => {
   try {
-    const releaseBranch = core.getInput("release-branch");
+    const releaseBranch = core.getInput("release-branch")?.trim();
 
     // https://github.com/nelonoel/branch-name/blob/master/index.js
     const branch =

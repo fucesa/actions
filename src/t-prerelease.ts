@@ -1,11 +1,19 @@
 import * as childProcess from "child_process";
+import * as path from "path";
 
 import * as core from "@actions/core";
-import * as findup from "findup-sync";
 
-var packageJson = require(findup("package.json") as string);
+// https://github.com/Saionaro/extract-package-version/blob/master/src/extract-version.js
+function getVersion(): string {
+  const workspace = process.env.GITHUB_WORKSPACE;
 
-const { version } = require(packageJson);
+  let dir = core.getInput("path") || workspace;
+  dir = path.resolve(dir as string);
+
+  const packagePath = path.join(dir, "package.json");
+  const pkg = require(packagePath);
+  return pkg.version.toString();
+}
 
 function exec(command: string): Promise<string> {
   return new Promise((resolve, reject) =>
@@ -26,7 +34,7 @@ const run = async (): Promise<void> => {
 
     let appVersion = "";
     if (branch === releaseBranch) {
-      appVersion = version;
+      appVersion = getVersion();
     } else {
       appVersion = await exec("git rev-parse --short HEAD");
     }

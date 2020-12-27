@@ -1,23 +1,23 @@
 {
-  "name": "t-prerelease",
+  "name": "prebuild",
   "version": "1.0.5",
   "description": "",
   "main": "index.js",
   "private": true,
   "scripts": {
-    "build": "ncc build --minify -o dist/t-prerelease src/t-prerelease.ts",
+    "build": "ncc build --minify -o dist/prebuild src/prebuild.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/fucesa/t-prerelease.git"
+    "url": "git+https://github.com/fucesa/prebuild.git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/fucesa/t-prerelease/issues"
+    "url": "https://github.com/fucesa/prebuild/issues"
   },
-  "homepage": "https://github.com/fucesa/t-prerelease#readme",
+  "homepage": "https://github.com/fucesa/prebuild#readme",
   "devDependencies": {
     "@types/findup-sync": "^2.0.2",
     "@zeit/ncc": "^0.22.3",

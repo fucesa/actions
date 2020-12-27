@@ -28,7 +28,10 @@ const run = async (): Promise<void> => {
   try {
     const releaseBranch = core.getInput("release-branch");
 
-    const branch = await exec("git rev-parse --abbrev-ref HEAD");
+    // https://github.com/nelonoel/branch-name/blob/master/index.js
+    const branch =
+      process.env.GITHUB_REF?.split("/").slice(2).join("/") ||
+      (await exec("git rev-parse --abbrev-ref HEAD"));
 
     console.log("Release branch set to: ", releaseBranch);
 
@@ -43,7 +46,10 @@ const run = async (): Promise<void> => {
     console.log("Branch: ", branch);
 
     core.setOutput("app-version", appVersion);
+    core.exportVariable("APP_VERSION", appVersion);
+
     core.setOutput("branch", branch);
+    core.exportVariable("BRANCH_NAME", branch);
   } catch (error) {
     core.setFailed(`Debug-action failure: ${error}`);
   }

@@ -1,5 +1,5 @@
-name: "prerelease"
-description: "Gets Teia prerelease Outputs"
+name: "t-prerelease"
+description: "Gets Teia t-prerelease Outputs"
 author: "cesargdm"
 inputs:
   release-branch:
@@ -13,4 +13,4 @@ outputs:
     description: "Current git branch."
 runs:
   using: "node12"
-  main: "dist/prerelease.js"
+  main: "dist/t-prerelease.js"

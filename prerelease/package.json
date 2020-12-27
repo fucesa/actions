@@ -5,7 +5,7 @@
   "main": "index.js",
   "private": true,
   "scripts": {
-    "build": "ncc build -o dist/t-prerelease src/t-prerelease.ts",
+    "build": "ncc build --minify -o dist/t-prerelease src/t-prerelease.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

@@ -13,4 +13,4 @@ outputs:
     description: "Current git branch."
 runs:
   using: "node12"
-  main: "dist/t-prerelease.js"
+  main: "dist/t-prerelease/index.js"

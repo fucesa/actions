@@ -37,8 +37,8 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 exports.__esModule = true;
 var childProcess = require("child_process");
-var path = require("path");
-var packageJson = path.dirname(require.resolve("package-name")) + "/package.json";
+var findup = require("findup-sync");
+var packageJson = require(findup("package.json"));
 var version = require(packageJson).version;
 var core = require("@actions/core");
 // import * as github from '@actions/github'

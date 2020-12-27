@@ -1,8 +1,8 @@
 import * as childProcess from "child_process";
-import * as path from "path";
+import * as findup from "findup-sync";
 
-const packageJson =
-  path.dirname(require.resolve("package-name")) + "/package.json";
+var packageJson = require(findup("package.json"));
+
 const { version } = require(packageJson);
 
 import * as core from "@actions/core";

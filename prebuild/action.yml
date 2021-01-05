@@ -15,6 +15,10 @@ outputs:
     description: "App version based on package.json or git commit hash"
   branch:
     description: "Current git branch."
+  namespace:
+    description: "Suggested namespace for deployment."
+  isPreview:
+    description: "Suggests that the current build is not a regular deployment."
 runs:
   using: "node12"
   main: "dist/prebuild/index.js"

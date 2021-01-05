@@ -4,7 +4,7 @@ import * as path from "path";
 import * as core from "@actions/core";
 
 // https://github.com/Saionaro/extract-package-version/blob/master/src/extract-version.js
-function getVersion(): string {
+function getData(): { version: string; name: string } {
   const workspace = process.env.GITHUB_WORKSPACE;
 
   let dir = core.getInput("path") || workspace;
@@ -12,7 +12,8 @@ function getVersion(): string {
 
   const packagePath = path.join(dir, "package.json");
   const pkg = require(packagePath);
-  return pkg.version.toString();
+
+  return { version: pkg.version.toString(), name: pkg.name.toString() };
 }
 
 function exec(command: string): Promise<string> {
@@ -43,14 +44,14 @@ function hashString(str: string, seed = 0) {
   return (4294967296 * (2097151 & h2) + (h1 >>> 0)).toString(36);
 }
 
-function createNamespace(branchName: string) {
+function createNamespace(branchName: string, projectName: string) {
   const slug = branchName
     .toLowerCase()
     .replace(/ /g, "-")
     .replace(/[^\w-]+/g, "")
     .substring(0, 15);
 
-  return `${slug}--${hashString(branchName)}`;
+  return `${projectName}--${slug}--${hashString(branchName)}`;
 }
 
 const run = async (): Promise<void> => {
@@ -71,12 +72,12 @@ const run = async (): Promise<void> => {
     let appVersion = "";
     if (productionBranch === branch) {
       //releaseBranches.includes(branch)
-      appVersion = getVersion();
+      ({ version: appVersion } = getData());
     } else {
       appVersion = await exec("git rev-parse --short HEAD");
     }
 
-    let namespace = createNamespace(branch);
+    let namespace = createNamespace(branch, getData().name);
     if (releaseBranches.includes(branch)) {
       namespace = branch;
     }
@@ -88,6 +89,7 @@ const run = async (): Promise<void> => {
     core.setOutput("app-version", appVersion);
     core.setOutput("branch", branch);
     core.setOutput("namespace", namespace);
+    core.setOutput("isPreview", namespace !== branch);
   } catch (error) {
     core.setFailed(`Debug-action failure: ${error}`);
   }

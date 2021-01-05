@@ -55,7 +55,6 @@ function createNamespace(branchName: string) {
 
 const run = async (): Promise<void> => {
   try {
-    console.log(core.getInput("release-branches"));
     const productionBranch = core.getInput("production-branch")?.trim();
     const releaseBranches = JSON.parse(
       core.getInput("release-branches")?.trim() ?? "[]"
@@ -84,6 +83,7 @@ const run = async (): Promise<void> => {
 
     console.log("Version: ", appVersion);
     console.log("Branch: ", branch);
+    console.log("Namespace: ", namespace);
 
     core.setOutput("app-version", appVersion);
     core.setOutput("branch", branch);

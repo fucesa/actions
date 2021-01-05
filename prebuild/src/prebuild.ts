@@ -48,9 +48,9 @@ function createNamespace(branchName: string) {
     .toLowerCase()
     .replace(/ /g, "-")
     .replace(/[^\w-]+/g, "")
-    .substring(0, 10);
+    .substring(0, 15);
 
-  return `${slug}-${hashString(branchName)}`;
+  return `${slug}--${hashString(branchName)}`;
 }
 
 const run = async (): Promise<void> => {

@@ -2,8 +2,12 @@ name: "prebuild"
 description: "Gets Teia prebuild Outputs"
 author: "cesargdm"
 inputs:
-  release-branch:
-    description: Release branch name
+  release-branches:
+    description: Release branches names
+    default: "['main']"
+    required: false
+  production-branch:
+    description: Production branch name
     default: main
     required: false
 outputs:

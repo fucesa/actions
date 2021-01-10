@@ -45,15 +45,15 @@ async function run(): Promise<void> {
       })
       .catch(() => []);
 
-    const previousDeployComment = (comments as any)?.data.some(
+    const previousDeployComment = (comments as any)?.data.find(
       (comment: any) => {
-        console.log(comment.user);
-        console.log(comment.body);
-        console.log(comment.body.includes(/deploy/gi));
-
-        return false;
+        if (!comment.user.login.match(/teia/gi)) return false;
+        if (!comment.body.match(/deploy/gi)) return false;
+        return true;
       }
     );
+
+    console.log(previousDeployComment);
 
     // TODO: check if distribution already exists
     const existingDistributionData: GetDistributionResult = await new Promise(

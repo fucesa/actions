@@ -143,9 +143,10 @@ async function run(): Promise<void> {
                     //   Enabled: true || false /* required */,
                     //   OriginShieldRegion: "STRING_VALUE",
                     // },
-                    // S3OriginConfig: {
-                    //   OriginAccessIdentity: "STRING_VALUE" /* required */,
-                    // },
+                    S3OriginConfig: {
+                      OriginAccessIdentity:
+                        "access-identity-default" /* required */,
+                    },
                   },
                   /* more items */
                 ],

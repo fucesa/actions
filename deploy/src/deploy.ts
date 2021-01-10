@@ -34,9 +34,6 @@ async function run(): Promise<void> {
     console.log("Aliases", alias);
     console.log("Certificate ID", certificateId);
 
-    console.log("Context REF", github.context.issue);
-    console.log("Context Issue", github.context.ref);
-
     // TODO: Get distribution ID from comments
     const distributionId = "EBIT5IZWT1WEF";
 
@@ -50,7 +47,7 @@ async function run(): Promise<void> {
 
     console.log("existingDistributionData");
     console.log(existingDistributionData);
-    const existingDistributionId = existingDistributionData.Distribution?.Id;
+    let existingDistributionId = existingDistributionData.Distribution?.Id;
 
     let distributionResult: CreateDistributionWithTagsResult;
     if (!existingDistributionId) {
@@ -193,10 +190,9 @@ async function run(): Promise<void> {
     }
 
     const comment = await octokit.issues.createComment({
-      owner: "Teia CD Bot",
-      repo: "fucesa/cloud-client",
-      issue_number: 374,
-      body: "This is a nice test",
+      ...github.context.issue,
+      issue_number: github.context.issue.number,
+      body: `Deployed\nDistribution ID: ${existingDistributionId}`,
     });
 
     console.log("comment");

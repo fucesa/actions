@@ -14,6 +14,8 @@ async function run(): Promise<void> {
     console.log("Bucket:", bucket);
     console.log("Namespace:", namespace);
 
+    // TODO: check if distribution already exists
+
     const data = await new Promise((resolve, reject) =>
       cloudfront.createDistributionWithTags(
         {
@@ -21,10 +23,10 @@ async function run(): Promise<void> {
             /* required */
             DistributionConfig: {
               /* required */ CallerReference: "STRING_VALUE" /* required */,
-              Comment: "STRING_VALUE" /* required */,
+              Comment: "",
               DefaultCacheBehavior: {
-                TargetOriginId: namespace /* required */,
-                ViewerProtocolPolicy: "https-only" /* required */,
+                TargetOriginId: namespace,
+                ViewerProtocolPolicy: "https-only",
                 AllowedMethods: {
                   Items: ["HEAD", "GET"],
                   Quantity: 2,

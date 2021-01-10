@@ -63,7 +63,7 @@ async function run(): Promise<void> {
                   Items: [
                     {
                       DomainName: `${bucket}.s3.amazonaws.com`,
-                      Id: `${bucket}.s3.amazonaws.com`,
+                      Id: namespace,
                       ConnectionAttempts: 3,
                       ConnectionTimeout: 10,
                       CustomHeaders: { Quantity: 0 },

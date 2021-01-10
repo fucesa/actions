@@ -1,4 +1,3 @@
-
 import * as core from "@actions/core";
 import { CloudFront } from "aws-sdk";
 
@@ -8,6 +7,7 @@ async function run(): Promise<void> {
   try {
     const namespace = core.getInput("namespace")?.trim() ?? "";
     const bucket = core.getInput("bucket")?.trim() ?? "";
+    const domainName = core.getInput("domainName")?.trim() ?? "";
     const originAccessIdentity =
       core.getInput("originAccessIdentity")?.trim() ?? "";
 
@@ -88,7 +88,7 @@ async function run(): Promise<void> {
                 Quantity: 1 /* required */,
                 Items: [
                   {
-                    DomainName: `${bucket}.s3.amazon.com` /* required */,
+                    DomainName: `${bucket}.s3.amazonaws.com` /* required */,
                     Id: namespace, // required
                     ConnectionAttempts: 3,
                     ConnectionTimeout: 10,
@@ -124,12 +124,11 @@ async function run(): Promise<void> {
                       OriginAccessIdentity: originAccessIdentity /* required */,
                     },
                   },
-                  /* more items */
                 ],
               },
               Aliases: {
-                Quantity: 1 /* required */,
-                Items: [`${namespace}.teia.dev`],
+                Quantity: 1,
+                Items: [`${namespace}.${domainName}`],
               },
               CacheBehaviors: {
                 Quantity: 0,
@@ -181,8 +180,8 @@ async function run(): Promise<void> {
             },
             Tags: {
               Items: [
-                {Key: "DEPLOY_TYPE",Value: "PREVIEW"},
-                {Key: "NAMESPACE",Value: namespace,},
+                { Key: "DEPLOY_TYPE", Value: "PREVIEW" },
+                { Key: "NAMESPACE", Value: namespace },
               ],
             },
           },

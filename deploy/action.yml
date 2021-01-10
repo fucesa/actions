@@ -6,10 +6,13 @@ inputs:
     description: Release branches names
     required: true
   bucket:
-    description: Production branch name
+    description: Origin Bucket ARN
     required: true
   originAccessIdentity:
-    description: Production branch name
+    description: S3 Origin Access Identity ID
+    required: true
+  domainName:
+    description: Alias domain name
     required: true
 runs:
   using: "node12"

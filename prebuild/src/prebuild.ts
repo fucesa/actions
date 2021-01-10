@@ -54,7 +54,7 @@ function createNamespace(branchName: string, projectName: string) {
   return `${projectName}--${slug}--${hashString(branchName)}`;
 }
 
-const run = async (): Promise<void> => {
+async function run(): Promise<void> {
   try {
     const productionBranch = core.getInput("production-branch")?.trim();
     const releaseBranches = JSON.parse(
@@ -93,7 +93,7 @@ const run = async (): Promise<void> => {
   } catch (error) {
     core.setFailed(`Debug-action failure: ${error}`);
   }
-};
+}
 
 run();
 

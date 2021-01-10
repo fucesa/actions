@@ -10,22 +10,20 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/fucesa/prebuild.git"
+    "url": "git+https://github.com/fucesa/actions.git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/fucesa/prebuild/issues"
+    "url": "https://github.com/fucesa/actions/issues"
   },
-  "homepage": "https://github.com/fucesa/prebuild#readme",
+  "homepage": "https://github.com/fucesa/actions#readme",
   "devDependencies": {
-    "@types/findup-sync": "^2.0.2",
     "@zeit/ncc": "^0.22.3",
     "typescript": "^4.1.3"
   },
   "dependencies": {
     "@actions/core": "^1.2.6",
-    "@actions/github": "^4.0.0",
-    "findup-sync": "^4.0.0"
+    "@actions/github": "^4.0.0"
   }
 }

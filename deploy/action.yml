@@ -1,0 +1,13 @@
+name: "deploy"
+description: "Creates Teia deployments"
+author: "cesargdm"
+inputs:
+  namespace:
+    description: Release branches names
+    required: true
+  bucket:
+    description: Production branch name
+    required: true
+runs:
+  using: "node12"
+  main: "dist/deploy/index.js"

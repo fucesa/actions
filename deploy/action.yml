@@ -8,6 +8,9 @@ inputs:
   bucket:
     description: Production branch name
     required: true
+  originAccessIdentity:
+    description: Production branch name
+    required: true
 runs:
   using: "node12"
   main: "dist/deploy/index.js"

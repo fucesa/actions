@@ -1,18 +1,19 @@
-// import * as childProcess from "child_process";
-// import * as path from "path";
 
 import * as core from "@actions/core";
-import * as AWS from "aws-sdk";
+import { CloudFront } from "aws-sdk";
 
-const cloudfront = new AWS.CloudFront();
+const cloudfront = new CloudFront();
 
 async function run(): Promise<void> {
   try {
     const namespace = core.getInput("namespace")?.trim() ?? "";
     const bucket = core.getInput("bucket")?.trim() ?? "";
+    const originAccessIdentity =
+      core.getInput("originAccessIdentity")?.trim() ?? "";
 
     console.log("Bucket:", bucket);
     console.log("Namespace:", namespace);
+    console.log("Origin Access Identity:", originAccessIdentity);
 
     // TODO: check if distribution already exists
 
@@ -22,7 +23,7 @@ async function run(): Promise<void> {
           DistributionConfigWithTags: {
             /* required */
             DistributionConfig: {
-              /* required */ CallerReference: "STRING_VALUE" /* required */,
+              CallerReference: "STRING_VALUE" /* required */,
               Comment: "",
               DefaultCacheBehavior: {
                 TargetOriginId: namespace,
@@ -120,9 +121,7 @@ async function run(): Promise<void> {
                       Enabled: false /* required */,
                     },
                     S3OriginConfig: {
-                      OriginAccessIdentity:
-                        // TODO:
-                        "origin-access-identity/cloudfront/EJEUEVSC0QZ70" /* required */,
+                      OriginAccessIdentity: originAccessIdentity /* required */,
                     },
                   },
                   /* more items */
@@ -132,7 +131,6 @@ async function run(): Promise<void> {
                 Quantity: 1 /* required */,
                 Items: [`${namespace}.teia.dev`],
               },
-              // },
               CacheBehaviors: {
                 Quantity: 0,
               },
@@ -154,42 +152,11 @@ async function run(): Promise<void> {
                 ],
               },
               DefaultRootObject: "STRING_VALUE",
-              HttpVersion: "HTTP2",
+              HttpVersion: "http2",
               IsIPV6Enabled: true,
-              // Logging: {
-              //   Bucket: 'STRING_VALUE', /* required */
-              //   Enabled: true || false, /* required */
-              //   IncludeCookies: true || false, /* required */
-              //   Prefix: 'STRING_VALUE' /* required */
-              // },
               OriginGroups: {
                 Quantity: 0, //required
               },
-              //   Items: [
-              //     {
-              //       FailoverCriteria: { /* required */
-              //         StatusCodes: { /* required */
-              //           Items: [ /* required */
-              //             'NUMBER_VALUE',
-              //             /* more items */
-              //           ],
-              //           Quantity: 'NUMBER_VALUE' /* required */
-              //         }
-              //       },
-              //       Id: 'STRING_VALUE', /* required */
-              //       Members: { /* required */
-              //         Items: [ /* required */
-              //           {
-              //             OriginId: 'STRING_VALUE' /* required */
-              //           },
-              //           /* more items */
-              //         ],
-              //         Quantity: 'NUMBER_VALUE' /* required */
-              //       }
-              //     },
-              //     /* more items */
-              //   ]
-              // },
               PriceClass: "PriceClass_All",
               // Restrictions: {
               //   GeoRestriction: { /* required */
@@ -214,14 +181,8 @@ async function run(): Promise<void> {
             },
             Tags: {
               Items: [
-                {
-                  Key: "DEPLOY_TYPE",
-                  Value: "PREVIEW",
-                },
-                {
-                  Key: "NAMESPACE",
-                  Value: namespace,
-                },
+                {Key: "DEPLOY_TYPE",Value: "PREVIEW"},
+                {Key: "NAMESPACE",Value: namespace,},
               ],
             },
           },
@@ -232,6 +193,8 @@ async function run(): Promise<void> {
         }
       )
     );
+
+    // TODO: Create Route53 Record
 
     console.log(data);
   } catch (error) {

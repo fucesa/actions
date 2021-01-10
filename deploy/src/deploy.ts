@@ -1,7 +1,10 @@
 import * as core from "@actions/core";
-import { CloudFront } from "aws-sdk";
+import { CloudFront, Route53 } from "aws-sdk";
+import { CreateDistributionWithTagsResult } from "aws-sdk/clients/cloudfront";
+import { ChangeResourceRecordSetsResponse } from "aws-sdk/clients/route53";
 
 const cloudfront = new CloudFront();
+const route53 = new Route53();
 
 async function run(): Promise<void> {
   try {
@@ -9,196 +12,168 @@ async function run(): Promise<void> {
     const bucket = core.getInput("bucket")?.trim() ?? "";
     const domainName = core.getInput("domainName")?.trim() ?? "";
     const certificateId = core.getInput("certificateId")?.trim() ?? "";
+    const hostedZoneId = core.getInput("hostedZoneId")?.trim() ?? "";
+    const aliasHostedZoneId = core.getInput("aliasHostedZoneId")?.trim() ?? "";
     const originAccessIdentity =
       core.getInput("originAccessIdentity")?.trim() ?? "";
 
-    const aliases = [`${namespace}.${domainName}`];
+    const alias = `${namespace}.${domainName}`;
 
     console.log("Bucket:", bucket);
     console.log("Namespace:", namespace);
     console.log("Origin Access Identity:", originAccessIdentity);
-    console.log("Aliases", aliases);
+    console.log("Aliases", alias);
     console.log("Certificate ID", certificateId);
 
     // TODO: check if distribution already exists
 
-    const data = await new Promise((resolve, reject) =>
-      cloudfront.createDistributionWithTags(
-        {
-          DistributionConfigWithTags: {
-            /* required */
-            DistributionConfig: {
-              CallerReference: "STRING_VALUE" /* required */,
-              Comment: "",
-              DefaultCacheBehavior: {
-                TargetOriginId: namespace,
-                ViewerProtocolPolicy: "redirect-to-https",
-                AllowedMethods: {
-                  Items: ["HEAD", "GET"],
-                  Quantity: 2,
-                  CachedMethods: {
+    const distributionResult: CreateDistributionWithTagsResult = await new Promise(
+      (resolve, reject) =>
+        cloudfront.createDistributionWithTags(
+          {
+            DistributionConfigWithTags: {
+              /* required */
+              DistributionConfig: {
+                CallerReference: "STRING_VALUE" /* required */,
+                Comment: "",
+                DefaultCacheBehavior: {
+                  TargetOriginId: namespace,
+                  ViewerProtocolPolicy: "redirect-to-https",
+                  AllowedMethods: {
                     Items: ["HEAD", "GET"],
                     Quantity: 2,
+                    CachedMethods: {
+                      Items: ["HEAD", "GET"],
+                      Quantity: 2,
+                    },
+                  },
+                  CachePolicyId: "658327ea-f89d-4fab-a63d-7e88639e58f6",
+                  Compress: true,
+                  FieldLevelEncryptionId: "",
+                  LambdaFunctionAssociations: { Quantity: 0 },
+                  SmoothStreaming: false,
+                  TrustedKeyGroups: {
+                    Enabled: false,
+                    Quantity: 0,
+                  },
+                  TrustedSigners: {
+                    Enabled: false,
+                    Quantity: 0,
                   },
                 },
-                CachePolicyId: "658327ea-f89d-4fab-a63d-7e88639e58f6",
-                Compress: true,
-                //   DefaultTTL: 'NUMBER_VALUE',
-                FieldLevelEncryptionId: "",
-                //   ForwardedValues: {
-                //     Cookies: { /* required */
-                //       Forward: none | whitelist | all, /* required */
-                //       WhitelistedNames: {
-                //         Quantity: 'NUMBER_VALUE', /* required */
-                //         Items: [
-                //           'STRING_VALUE',
-                //           /* more items */
-                //         ]
-                //       }
-                //     },
-                //     QueryString: true || false, /* required */
-                //     Headers: {
-                //       Quantity: 'NUMBER_VALUE', /* required */
-                //       Items: [
-                //         'STRING_VALUE',
-                //         /* more items */
-                //       ]
-                //     },
-                //     QueryStringCacheKeys: {
-                //       Quantity: 'NUMBER_VALUE', /* required */
-                //       Items: [
-                //         'STRING_VALUE',
-                //         /* more items */
-                //       ]
-                //     }
-                //   },
-                LambdaFunctionAssociations: { Quantity: 0 },
-                //   MaxTTL: 'NUMBER_VALUE',
-                //   MinTTL: 'NUMBER_VALUE',
-                //   OriginRequestPolicyId: 'STRING_VALUE',
-                //   RealtimeLogConfigArn: 'STRING_VALUE',
-                SmoothStreaming: false,
-                TrustedKeyGroups: {
-                  Enabled: false,
+                Enabled: true,
+                Origins: {
+                  Quantity: 1,
+                  Items: [
+                    {
+                      DomainName: `${bucket}.s3.amazonaws.com` /* required */,
+                      Id: namespace,
+                      ConnectionAttempts: 3,
+                      ConnectionTimeout: 10,
+                      CustomHeaders: { Quantity: 0 },
+                      OriginPath: `/${namespace}`,
+                      OriginShield: { Enabled: false },
+                      S3OriginConfig: {
+                        OriginAccessIdentity: originAccessIdentity,
+                      },
+                    },
+                  ],
+                },
+                Aliases: {
+                  Quantity: 1,
+                  Items: [alias],
+                },
+                CacheBehaviors: {
                   Quantity: 0,
                 },
-                TrustedSigners: {
-                  Enabled: false,
-                  Quantity: 0,
+                CustomErrorResponses: {
+                  Quantity: 2,
+                  Items: [
+                    {
+                      ErrorCode: 404,
+                      ErrorCachingMinTTL: 86400,
+                      ResponseCode: "200",
+                      ResponsePagePath: "/index.html",
+                    },
+                    {
+                      ErrorCode: 403,
+                      ErrorCachingMinTTL: 86400,
+                      ResponseCode: "200",
+                      ResponsePagePath: "/index.html",
+                    },
+                  ],
                 },
+                DefaultRootObject: "STRING_VALUE",
+                HttpVersion: "http2",
+                IsIPV6Enabled: true,
+                OriginGroups: {
+                  Quantity: 0, //required
+                },
+                PriceClass: "PriceClass_All",
+                ViewerCertificate: {
+                  ACMCertificateArn: certificateId,
+                  Certificate: certificateId,
+                  CertificateSource: "acm",
+                  SSLSupportMethod: "sni-only",
+                  MinimumProtocolVersion: "TLSv1.1_2016",
+                },
+                WebACLId: "",
               },
-              Enabled: true /* required */,
-              Origins: {
-                /* required */
-                Quantity: 1 /* required */,
+              Tags: {
                 Items: [
-                  {
-                    DomainName: `${bucket}.s3.amazonaws.com` /* required */,
-                    Id: namespace, // required
-                    ConnectionAttempts: 3,
-                    ConnectionTimeout: 10,
-                    CustomHeaders: {
-                      Quantity: 0 /* required */,
-                      // Items: [
-                      //   {
-                      //     HeaderName: "STRING_VALUE" /* required */,
-                      //     HeaderValue: "STRING_VALUE" /* required */,
-                      //   },
-                      //   /* more items */
-                      // ],
-                    },
-                    // CustomOriginConfig: {
-                    //   HTTPPort: "NUMBER_VALUE" /* required */,
-                    //   HTTPSPort: "NUMBER_VALUE" /* required */,
-                    //   OriginProtocolPolicy: "https-only" /* required */,
-                    // //   OriginKeepaliveTimeout: "NUMBER_VALUE",
-                    // //   OriginReadTimeout: "NUMBER_VALUE",
-                    //   // OriginSslProtocols: {
-                    //   //   Items: [ /* required */
-                    //   //     SSLv3 | TLSv1 | TLSv1.1 | TLSv1.2,
-                    //   //     /* more items */
-                    //   //   ],
-                    //   //   Quantity: 'NUMBER_VALUE' /* required */
-                    //   // }
-                    // },
-                    OriginPath: `/${namespace}`,
-                    OriginShield: {
-                      Enabled: false /* required */,
-                    },
-                    S3OriginConfig: {
-                      OriginAccessIdentity: originAccessIdentity /* required */,
-                    },
-                  },
+                  { Key: "DEPLOY_TYPE", Value: "PREVIEW" },
+                  { Key: "NAMESPACE", Value: namespace },
+                  { Key: "DOMAIN_NAME", Value: domainName },
                 ],
               },
-              Aliases: {
-                Quantity: aliases.length,
-                Items: aliases,
-              },
-              CacheBehaviors: {
-                Quantity: 0,
-              },
-              CustomErrorResponses: {
-                Quantity: 2,
-                Items: [
-                  {
-                    ErrorCode: 404,
-                    ErrorCachingMinTTL: 86400,
-                    ResponseCode: "200",
-                    ResponsePagePath: "/index.html",
-                  },
-                  {
-                    ErrorCode: 403,
-                    ErrorCachingMinTTL: 86400,
-                    ResponseCode: "200",
-                    ResponsePagePath: "/index.html",
-                  },
-                ],
-              },
-              DefaultRootObject: "STRING_VALUE",
-              HttpVersion: "http2",
-              IsIPV6Enabled: true,
-              OriginGroups: {
-                Quantity: 0, //required
-              },
-              PriceClass: "PriceClass_All",
-              // Restrictions: {
-              //   GeoRestriction: { /* required */
-              //     Quantity: 'NUMBER_VALUE', /* required */
-              //     RestrictionType: blacklist | whitelist | none, /* required */
-              //     Items: [
-              //       'STRING_VALUE',
-              //       /* more items */
-              //     ]
-              //   }
-              // },
-              ViewerCertificate: {
-                ACMCertificateArn: certificateId,
-                Certificate: certificateId,
-                CertificateSource: "acm",
-                SSLSupportMethod: "sni-only",
-                MinimumProtocolVersion: "TLSv1.1_2016",
-              },
-              WebACLId: "",
-            },
-            Tags: {
-              Items: [
-                { Key: "DEPLOY_TYPE", Value: "PREVIEW" },
-                { Key: "NAMESPACE", Value: namespace },
-              ],
             },
           },
-        },
-        (error, data) => {
-          if (error) reject(error);
-          resolve(data);
-        }
-      )
+          (error, data) => {
+            if (error) reject(error);
+            resolve(data);
+          }
+        )
     );
 
-    // TODO: Create Route53 Record
+    const cloudFrontDomainName = distributionResult.Distribution?.DomainName;
 
-    console.log(data);
+    if (!cloudFrontDomainName) {
+      throw new Error("Could not get cloudfront domain name");
+    }
+
+    const routeData: ChangeResourceRecordSetsResponse = await new Promise(
+      (resolve, reject) =>
+        route53.changeResourceRecordSets(
+          {
+            ChangeBatch: {
+              // TODO: Create both records
+              Changes: [
+                {
+                  Action: "CREATE",
+                  ResourceRecordSet: {
+                    AliasTarget: {
+                      DNSName: cloudFrontDomainName,
+                      EvaluateTargetHealth: false,
+                      // TODO: auto-get
+                      HostedZoneId: aliasHostedZoneId,
+                    },
+                    Name: domainName,
+                    Type: "A",
+                  },
+                },
+              ],
+              Comment: "CloudFront distribution for example.com",
+            },
+            HostedZoneId: hostedZoneId, // Depends on the type of resource that you want to route traffic to
+          },
+          (error, data) => {
+            if (error) reject(error);
+            resolve(data);
+          }
+        )
+    );
+
+    console.log({ routeData });
   } catch (error) {
     core.setFailed(`Deploy-action failure: ${error}`);
   }

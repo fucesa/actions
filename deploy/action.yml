@@ -17,6 +17,12 @@ inputs:
   certificateId:
     description: Certificate ID
     required: true
+  hostedZoneId:
+    description: AWS Hosted Zone ID
+    required: true
+  aliasHostedZoneId:
+    description: AWS Alias Hosted Zone ID
+    required: true
 runs:
   using: "node12"
   main: "dist/deploy/index.js"

@@ -45,8 +45,15 @@ async function run(): Promise<void> {
       })
       .catch(() => []);
 
-    console.log("comments");
-    console.log(comments);
+    const previousDeployComment = (comments as any)?.data.some(
+      (comment: any) => {
+        console.log(comment.user);
+        console.log(comment.body);
+        console.log(comment.body.includes(/deploy/gi));
+
+        return false;
+      }
+    );
 
     // TODO: check if distribution already exists
     const existingDistributionData: GetDistributionResult = await new Promise(
@@ -205,7 +212,7 @@ async function run(): Promise<void> {
         ...github.context.issue,
         issue_number: github.context.issue.number,
         body: `
-### Deployed 🚀
+### Deploy 🚀
 
 | Key | Value |
 | --- | --- |

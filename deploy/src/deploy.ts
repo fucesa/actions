@@ -34,7 +34,8 @@ async function run(): Promise<void> {
     console.log("Aliases", alias);
     console.log("Certificate ID", certificateId);
 
-    console.log("Context REF", github.context.ref);
+    console.log("Context REF", github.context.issue);
+    console.log("Context Issue", github.context.ref);
 
     // TODO: Get distribution ID from comments
     const distributionId = "EBIT5IZWT1WEF";

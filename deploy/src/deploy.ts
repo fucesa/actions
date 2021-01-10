@@ -8,7 +8,7 @@ const cloudfront = new AWS.CloudFront();
 
 async function run(): Promise<void> {
   try {
-    const namespace = core.getInput("namespace")?.trim();
+    const namespace = core.getInput("namespace")?.trim() ?? "";
 
     const data = await new Promise((resolve, reject) =>
       cloudfront.createDistributionWithTags(
@@ -19,7 +19,8 @@ async function run(): Promise<void> {
               /* required */ CallerReference: "STRING_VALUE" /* required */,
               Comment: "STRING_VALUE" /* required */,
               DefaultCacheBehavior: {
-                /* required */ TargetOriginId: "STRING_VALUE" /* required */,
+                // required
+                TargetOriginId: "STRING_VALUE" /* required */,
                 ViewerProtocolPolicy: "https-only" /* required */,
                 //   AllowedMethods: {
                 //     Items: [ /* required */
@@ -105,7 +106,8 @@ async function run(): Promise<void> {
                 Quantity: 1 /* required */,
                 Items: [
                   {
-                    DomainName: "STRING_VALUE" /* required */,
+                    // TODO: get bucket name from input
+                    DomainName: "fucesa-cloud.s3.amazon.com" /* required */,
                     Id: "STRING_VALUE" /* required */,
                     // ConnectionAttempts: "NUMBER_VALUE",
                     // ConnectionTimeout: "NUMBER_VALUE",
@@ -133,7 +135,7 @@ async function run(): Promise<void> {
                     //   //   Quantity: 'NUMBER_VALUE' /* required */
                     //   // }
                     // },
-                    OriginPath: "/index.html",
+                    OriginPath: `/${namespace}`,
                     // OriginShield: {
                     //   Enabled: true || false /* required */,
                     //   OriginShieldRegion: "STRING_VALUE",

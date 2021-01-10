@@ -40,8 +40,7 @@ async function run(): Promise<void> {
     const distributionId = "EBIT5IZWT1WEF";
     const comments = await octokit.issues
       .listComments({
-        owner,
-        repo: github.context.issue.repo,
+        ...github.context.issue,
         issue_number: github.context.issue.number,
       })
       .catch(() => []);
@@ -205,14 +204,16 @@ async function run(): Promise<void> {
       .createComment({
         ...github.context.issue,
         issue_number: github.context.issue.number,
-        body: `Deployed
-URL: https://${alias}
-Distribution ID: ${existingDistributionId}`,
+        body: `
+### Deployed 🚀
+
+| Key | Value |
+| --- | --- |
+| URL | https://${alias} |
+| Distribution | ${existingDistributionId} |
+| Time | ${new Date().toISOString()} |`,
       })
-      .catch((error) => {
-        console.log(error);
-        return undefined;
-      });
+      .catch(() => undefined);
 
     console.log("comment");
     console.log(comment);

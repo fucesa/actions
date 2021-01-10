@@ -32,9 +32,9 @@ async function run(): Promise<void> {
         cloudfront.createDistributionWithTags(
           {
             DistributionConfigWithTags: {
-              /* required */
               DistributionConfig: {
-                CallerReference: "STRING_VALUE" /* required */,
+                Enabled: true,
+                CallerReference: "STRING_VALUE" /* required */, // TODO:
                 Comment: "",
                 DefaultCacheBehavior: {
                   TargetOriginId: namespace,
@@ -42,10 +42,7 @@ async function run(): Promise<void> {
                   AllowedMethods: {
                     Items: ["HEAD", "GET"],
                     Quantity: 2,
-                    CachedMethods: {
-                      Items: ["HEAD", "GET"],
-                      Quantity: 2,
-                    },
+                    CachedMethods: { Items: ["HEAD", "GET"], Quantity: 2 },
                   },
                   CachePolicyId: "658327ea-f89d-4fab-a63d-7e88639e58f6",
                   Compress: true,
@@ -61,13 +58,12 @@ async function run(): Promise<void> {
                     Quantity: 0,
                   },
                 },
-                Enabled: true,
                 Origins: {
                   Quantity: 1,
                   Items: [
                     {
-                      DomainName: `${bucket}.s3.amazonaws.com` /* required */,
-                      Id: namespace,
+                      DomainName: `${bucket}.s3.amazonaws.com`,
+                      Id: `${bucket}.s3.amazonaws.com`,
                       ConnectionAttempts: 3,
                       ConnectionTimeout: 10,
                       CustomHeaders: { Quantity: 0 },
@@ -79,13 +75,8 @@ async function run(): Promise<void> {
                     },
                   ],
                 },
-                Aliases: {
-                  Quantity: 1,
-                  Items: [alias],
-                },
-                CacheBehaviors: {
-                  Quantity: 0,
-                },
+                Aliases: { Quantity: 1, Items: [alias] },
+                CacheBehaviors: { Quantity: 0 },
                 CustomErrorResponses: {
                   Quantity: 2,
                   Items: [
@@ -106,9 +97,7 @@ async function run(): Promise<void> {
                 DefaultRootObject: "STRING_VALUE",
                 HttpVersion: "http2",
                 IsIPV6Enabled: true,
-                OriginGroups: {
-                  Quantity: 0, //required
-                },
+                OriginGroups: { Quantity: 0 },
                 PriceClass: "PriceClass_All",
                 ViewerCertificate: {
                   ACMCertificateArn: certificateId,
@@ -146,25 +135,22 @@ async function run(): Promise<void> {
         route53.changeResourceRecordSets(
           {
             ChangeBatch: {
-              // TODO: Create both records
-              Changes: [
-                {
-                  Action: "CREATE",
-                  ResourceRecordSet: {
-                    AliasTarget: {
-                      DNSName: cloudFrontDomainName,
-                      EvaluateTargetHealth: false,
-                      // TODO: auto-get
-                      HostedZoneId: aliasHostedZoneId,
-                    },
-                    Name: domainName,
-                    Type: "A",
+              Changes: ["A", "AAAA"].map((Type) => ({
+                Action: "CREATE",
+                ResourceRecordSet: {
+                  AliasTarget: {
+                    DNSName: cloudFrontDomainName,
+                    EvaluateTargetHealth: false,
+                    // TODO: auto-get
+                    HostedZoneId: aliasHostedZoneId,
                   },
+                  Name: alias,
+                  Type,
                 },
-              ],
-              Comment: "CloudFront distribution for example.com",
+              })),
+              Comment: "",
             },
-            HostedZoneId: hostedZoneId, // Depends on the type of resource that you want to route traffic to
+            HostedZoneId: hostedZoneId,
           },
           (error, data) => {
             if (error) reject(error);
@@ -173,7 +159,10 @@ async function run(): Promise<void> {
         )
     );
 
-    console.log({ routeData });
+    console.log("distributionResult");
+    console.log(distributionResult);
+    console.log("routeData");
+    console.log(routeData);
   } catch (error) {
     core.setFailed(`Deploy-action failure: ${error}`);
   }

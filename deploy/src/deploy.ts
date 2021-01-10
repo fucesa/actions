@@ -36,6 +36,14 @@ async function run(): Promise<void> {
 
     // TODO: Get distribution ID from comments
     const distributionId = "EBIT5IZWT1WEF";
+    const comments = octokit.issues.listComments({
+      owner: "github-actions",
+      repo: github.context.issue.repo,
+      issue_number: github.context.issue.number,
+    });
+
+    console.log("comments");
+    console.log(comments);
 
     // TODO: check if distribution already exists
     const existingDistributionData: GetDistributionResult = await new Promise(
@@ -190,9 +198,12 @@ async function run(): Promise<void> {
     }
 
     const comment = await octokit.issues.createComment({
-      ...github.context.issue,
+      owner: "github-actions",
+      repo: github.context.issue.repo,
       issue_number: github.context.issue.number,
-      body: `Deployed\nDistribution ID: ${existingDistributionId}`,
+      body: `Deployed
+URL: https://${alias}
+Distribution ID: ${existingDistributionId}`,
     });
 
     console.log("comment");

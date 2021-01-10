@@ -9,6 +9,10 @@ const cloudfront = new AWS.CloudFront();
 async function run(): Promise<void> {
   try {
     const namespace = core.getInput("namespace")?.trim() ?? "";
+    const bucket = core.getInput("bucket")?.trim() ?? "";
+
+    console.log("Bucket:", bucket);
+    console.log("Namespace:", namespace);
 
     const data = await new Promise((resolve, reject) =>
       cloudfront.createDistributionWithTags(
@@ -106,9 +110,8 @@ async function run(): Promise<void> {
                 Quantity: 1 /* required */,
                 Items: [
                   {
-                    // TODO: get bucket name from input
-                    DomainName: "fucesa-cloud.s3.amazon.com" /* required */,
-                    Id: "STRING_VALUE" /* required */,
+                    DomainName: `${bucket}.s3.amazon.com` /* required */,
+                    Id: namespace, // required
                     // ConnectionAttempts: "NUMBER_VALUE",
                     // ConnectionTimeout: "NUMBER_VALUE",
                     // CustomHeaders: {

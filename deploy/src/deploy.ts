@@ -38,11 +38,13 @@ async function run(): Promise<void> {
 
     // TODO: Get distribution ID from comments
     const distributionId = "EBIT5IZWT1WEF";
-    const comments = await octokit.issues.listComments({
-      owner,
-      repo: github.context.issue.repo,
-      issue_number: github.context.issue.number,
-    });
+    const comments = await octokit.issues
+      .listComments({
+        owner,
+        repo: github.context.issue.repo,
+        issue_number: github.context.issue.number,
+      })
+      .catch(() => []);
 
     console.log("comments");
     console.log(comments);

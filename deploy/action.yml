@@ -14,6 +14,9 @@ inputs:
   domainName:
     description: Alias domain name
     required: true
+  certificateId:
+    description: Certificate ID
+    required: true
 runs:
   using: "node12"
   main: "dist/deploy/index.js"

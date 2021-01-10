@@ -8,12 +8,17 @@ async function run(): Promise<void> {
     const namespace = core.getInput("namespace")?.trim() ?? "";
     const bucket = core.getInput("bucket")?.trim() ?? "";
     const domainName = core.getInput("domainName")?.trim() ?? "";
+    const certificateId = core.getInput("certificateId")?.trim() ?? "";
     const originAccessIdentity =
       core.getInput("originAccessIdentity")?.trim() ?? "";
+
+    const aliases = [`${namespace}.${domainName}`];
 
     console.log("Bucket:", bucket);
     console.log("Namespace:", namespace);
     console.log("Origin Access Identity:", originAccessIdentity);
+    console.log("Aliases", aliases);
+    console.log("Certificate ID", certificateId);
 
     // TODO: check if distribution already exists
 
@@ -27,7 +32,7 @@ async function run(): Promise<void> {
               Comment: "",
               DefaultCacheBehavior: {
                 TargetOriginId: namespace,
-                ViewerProtocolPolicy: "https-only",
+                ViewerProtocolPolicy: "redirect-to-https",
                 AllowedMethods: {
                   Items: ["HEAD", "GET"],
                   Quantity: 2,
@@ -127,8 +132,8 @@ async function run(): Promise<void> {
                 ],
               },
               Aliases: {
-                Quantity: 1,
-                Items: [`${namespace}.${domainName}`],
+                Quantity: aliases.length,
+                Items: aliases,
               },
               CacheBehaviors: {
                 Quantity: 0,
@@ -167,15 +172,12 @@ async function run(): Promise<void> {
               //     ]
               //   }
               // },
-              // ViewerCertificate: {
-              //   ACMCertificateArn: 'STRING_VALUE',
-              //   Certificate: 'STRING_VALUE',
-              //   CertificateSource: cloudfront | iam | acm,
-              //   CloudFrontDefaultCertificate: false,
-              //   IAMCertificateId: '4f32e5ba-82b6-4c34-9ec2-ac1cf23d0dd3',
-              //   MinimumProtocolVersion: SSLv3 | TLSv1 | TLSv1_2016 | TLSv1.1_2016 | TLSv1.2_2018 | TLSv1.2_2019,
-              //   SSLSupportMethod: sni-only | vip | static-ip
-              // },
+              ViewerCertificate: {
+                ACMCertificateArn: certificateId,
+                Certificate: certificateId,
+                CertificateSource: "acm",
+                MinimumProtocolVersion: "TLSv1.1_2016",
+              },
               WebACLId: "",
             },
             Tags: {

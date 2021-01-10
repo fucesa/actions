@@ -1,6 +1,11 @@
 import * as core from "@actions/core";
+import * as github from "@actions/github";
+
 import { CloudFront, Route53 } from "aws-sdk";
-import { CreateDistributionWithTagsResult } from "aws-sdk/clients/cloudfront";
+import {
+  CreateDistributionWithTagsResult,
+  GetDistributionResult,
+} from "aws-sdk/clients/cloudfront";
 import { ChangeResourceRecordSetsResponse } from "aws-sdk/clients/route53";
 
 const cloudfront = new CloudFront();
@@ -16,6 +21,10 @@ async function run(): Promise<void> {
     const aliasHostedZoneId = core.getInput("aliasHostedZoneId")?.trim() ?? "";
     const originAccessIdentity =
       core.getInput("originAccessIdentity")?.trim() ?? "";
+    const repoToken =
+      core.getInput("repo-token") || process.env["GITHUB_TOKEN"];
+
+    const octokit = github.getOctokit(String(repoToken));
 
     const alias = `${namespace}.${domainName}`;
 
@@ -25,10 +34,24 @@ async function run(): Promise<void> {
     console.log("Aliases", alias);
     console.log("Certificate ID", certificateId);
 
-    // TODO: check if distribution already exists
+    // TODO: Get distribution ID from comments
+    const distributionId = "EBIT5IZWT1WEF";
 
-    const distributionResult: CreateDistributionWithTagsResult = await new Promise(
+    // TODO: check if distribution already exists
+    const existingDistributionData: GetDistributionResult = await new Promise(
       (resolve, reject) =>
+        cloudfront.getDistribution({ Id: distributionId }, (error, data) =>
+          error ? reject(error) : resolve(data)
+        )
+    );
+
+    console.log("existingDistributionData");
+    console.log(existingDistributionData);
+    const existingDistributionId = existingDistributionData.Distribution?.Id;
+
+    let distributionResult: CreateDistributionWithTagsResult;
+    if (!existingDistributionId) {
+      distributionResult = await new Promise((resolve, reject) =>
         cloudfront.createDistributionWithTags(
           {
             DistributionConfigWithTags: {
@@ -122,47 +145,59 @@ async function run(): Promise<void> {
             resolve(data);
           }
         )
-    );
+      );
 
-    const cloudFrontDomainName = distributionResult.Distribution?.DomainName;
+      const cloudFrontDomainName = distributionResult.Distribution?.DomainName;
 
-    if (!cloudFrontDomainName) {
-      throw new Error("Could not get cloudfront domain name");
+      if (!cloudFrontDomainName) {
+        throw new Error("Could not get cloudfront domain name");
+      }
+
+      const routeData: ChangeResourceRecordSetsResponse = await new Promise(
+        (resolve, reject) =>
+          route53.changeResourceRecordSets(
+            {
+              ChangeBatch: {
+                Changes: ["A", "AAAA"].map((Type) => ({
+                  Action: "CREATE",
+                  ResourceRecordSet: {
+                    AliasTarget: {
+                      DNSName: cloudFrontDomainName,
+                      EvaluateTargetHealth: false,
+                      // TODO: auto-get
+                      HostedZoneId: aliasHostedZoneId,
+                    },
+                    Name: alias,
+                    Type,
+                  },
+                })),
+                Comment: "",
+              },
+              HostedZoneId: hostedZoneId,
+            },
+            (error, data) => {
+              if (error) reject(error);
+              resolve(data);
+            }
+          )
+      );
+
+      console.log("distributionResult");
+      console.log(distributionResult);
+
+      console.log("routeData");
+      console.log(routeData);
     }
 
-    const routeData: ChangeResourceRecordSetsResponse = await new Promise(
-      (resolve, reject) =>
-        route53.changeResourceRecordSets(
-          {
-            ChangeBatch: {
-              Changes: ["A", "AAAA"].map((Type) => ({
-                Action: "CREATE",
-                ResourceRecordSet: {
-                  AliasTarget: {
-                    DNSName: cloudFrontDomainName,
-                    EvaluateTargetHealth: false,
-                    // TODO: auto-get
-                    HostedZoneId: aliasHostedZoneId,
-                  },
-                  Name: alias,
-                  Type,
-                },
-              })),
-              Comment: "",
-            },
-            HostedZoneId: hostedZoneId,
-          },
-          (error, data) => {
-            if (error) reject(error);
-            resolve(data);
-          }
-        )
-    );
+    const comment = await octokit.issues.createComment({
+      owner: "Teia CD Bot",
+      repo: "fucesa/cloud-client",
+      issue_number: 374,
+      body: "This is a nice test",
+    });
 
-    console.log("distributionResult");
-    console.log(distributionResult);
-    console.log("routeData");
-    console.log(routeData);
+    console.log("comment");
+    console.log(comment);
   } catch (error) {
     core.setFailed(`Deploy-action failure: ${error}`);
   }

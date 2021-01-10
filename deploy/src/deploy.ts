@@ -198,7 +198,7 @@ async function run(): Promise<void> {
     }
 
     const comment = await octokit.issues.createComment({
-      owner: "github-actions",
+      owner: "teia-bot",
       repo: github.context.issue.repo,
       issue_number: github.context.issue.number,
       body: `Deployed

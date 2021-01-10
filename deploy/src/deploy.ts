@@ -11,6 +11,8 @@ import { ChangeResourceRecordSetsResponse } from "aws-sdk/clients/route53";
 const cloudfront = new CloudFront();
 const route53 = new Route53();
 
+const owner = "teia-bot";
+
 async function run(): Promise<void> {
   try {
     const namespace = core.getInput("namespace")?.trim() ?? "";
@@ -36,8 +38,8 @@ async function run(): Promise<void> {
 
     // TODO: Get distribution ID from comments
     const distributionId = "EBIT5IZWT1WEF";
-    const comments = octokit.issues.listComments({
-      owner: "github-actions",
+    const comments = await octokit.issues.listComments({
+      owner,
       repo: github.context.issue.repo,
       issue_number: github.context.issue.number,
     });
@@ -198,7 +200,7 @@ async function run(): Promise<void> {
     }
 
     const comment = await octokit.issues.createComment({
-      owner: "teia-bot",
+      owner,
       repo: github.context.issue.repo,
       issue_number: github.context.issue.number,
       body: `Deployed

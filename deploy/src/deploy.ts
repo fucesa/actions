@@ -23,27 +23,20 @@ async function run(): Promise<void> {
               /* required */ CallerReference: "STRING_VALUE" /* required */,
               Comment: "STRING_VALUE" /* required */,
               DefaultCacheBehavior: {
-                // required
-                TargetOriginId: "STRING_VALUE" /* required */,
+                TargetOriginId: namespace /* required */,
                 ViewerProtocolPolicy: "https-only" /* required */,
-                //   AllowedMethods: {
-                //     Items: [ /* required */
-                //       GET | HEAD | POST | PUT | PATCH | OPTIONS | DELETE,
-                //       /* more items */
-                //     ],
-                //     Quantity: 'NUMBER_VALUE', /* required */
-                //     CachedMethods: {
-                //       Items: [ /* required */
-                //         GET | HEAD | POST | PUT | PATCH | OPTIONS | DELETE,
-                //         /* more items */
-                //       ],
-                //       Quantity: 'NUMBER_VALUE' /* required */
-                //     }
-                //   },
+                AllowedMethods: {
+                  Items: ["HEAD", "GET"],
+                  Quantity: 2,
+                  CachedMethods: {
+                    Items: ["HEAD", "GET"],
+                    Quantity: 2,
+                  },
+                },
                 //   CachePolicyId: 'STRING_VALUE',
                 Compress: true,
                 //   DefaultTTL: 'NUMBER_VALUE',
-                //   FieldLevelEncryptionId: 'STRING_VALUE',
+                FieldLevelEncryptionId: "",
                 //   ForwardedValues: {
                 //     Cookies: { /* required */
                 //       Forward: none | whitelist | all, /* required */
@@ -71,38 +64,20 @@ async function run(): Promise<void> {
                 //       ]
                 //     }
                 //   },
-                //   LambdaFunctionAssociations: {
-                //     Quantity: 'NUMBER_VALUE', /* required */
-                //     Items: [
-                //       {
-                //         EventType: viewer-request | viewer-response | origin-request | origin-response, /* required */
-                //         LambdaFunctionARN: 'STRING_VALUE', /* required */
-                //         IncludeBody: true || false
-                //       },
-                //       /* more items */
-                //     ]
-                //   },
+                LambdaFunctionAssociations: { Quantity: 0 },
                 //   MaxTTL: 'NUMBER_VALUE',
                 //   MinTTL: 'NUMBER_VALUE',
                 //   OriginRequestPolicyId: 'STRING_VALUE',
                 //   RealtimeLogConfigArn: 'STRING_VALUE',
-                //   SmoothStreaming: true || false,
-                //   TrustedKeyGroups: {
-                //     Enabled: true || false, /* required */
-                //     Quantity: 'NUMBER_VALUE', /* required */
-                //     Items: [
-                //       'STRING_VALUE',
-                //       /* more items */
-                //     ]
-                //   },
-                //   TrustedSigners: {
-                //     Enabled: true || false, /* required */
-                //     Quantity: 'NUMBER_VALUE', /* required */
-                //     Items: [
-                //       'STRING_VALUE',
-                //       /* more items */
-                //     ]
-                //   }
+                SmoothStreaming: false,
+                TrustedKeyGroups: {
+                  Enabled: false,
+                  Quantity: 0,
+                },
+                TrustedSigners: {
+                  Enabled: false,
+                  Quantity: 0,
+                },
               },
               Enabled: true /* required */,
               Origins: {
@@ -112,18 +87,18 @@ async function run(): Promise<void> {
                   {
                     DomainName: `${bucket}.s3.amazon.com` /* required */,
                     Id: namespace, // required
-                    // ConnectionAttempts: "NUMBER_VALUE",
-                    // ConnectionTimeout: "NUMBER_VALUE",
-                    // CustomHeaders: {
-                    //   Quantity: "NUMBER_VALUE" /* required */,
-                    //   Items: [
-                    //     {
-                    //       HeaderName: "STRING_VALUE" /* required */,
-                    //       HeaderValue: "STRING_VALUE" /* required */,
-                    //     },
-                    //     /* more items */
-                    //   ],
-                    // },
+                    ConnectionAttempts: 3,
+                    ConnectionTimeout: 10,
+                    CustomHeaders: {
+                      Quantity: 0 /* required */,
+                      // Items: [
+                      //   {
+                      //     HeaderName: "STRING_VALUE" /* required */,
+                      //     HeaderValue: "STRING_VALUE" /* required */,
+                      //   },
+                      //   /* more items */
+                      // ],
+                    },
                     // CustomOriginConfig: {
                     //   HTTPPort: "NUMBER_VALUE" /* required */,
                     //   HTTPSPort: "NUMBER_VALUE" /* required */,
@@ -139,127 +114,45 @@ async function run(): Promise<void> {
                     //   // }
                     // },
                     OriginPath: `/${namespace}`,
-                    // OriginShield: {
-                    //   Enabled: true || false /* required */,
-                    //   OriginShieldRegion: "STRING_VALUE",
-                    // },
+                    OriginShield: {
+                      Enabled: false /* required */,
+                    },
                     S3OriginConfig: {
                       OriginAccessIdentity:
-                        "access-identity-default" /* required */,
+                        // TODO:
+                        "origin-access-identity/cloudfront/EJEUEVSC0QZ70" /* required */,
                     },
                   },
                   /* more items */
                 ],
               },
-              // Aliases: {
-              //   Quantity: 1 /* required */,
-              //   Items: [
-              //     `${namespace}.teia.dev`,
-              //     /* more items */
-              //   ],
-              // },
-              // CacheBehaviors: {
-              //   Quantity: 'NUMBER_VALUE', /* required */
-              //   Items: [
-              //     {
-              //       PathPattern: 'STRING_VALUE', /* required */
-              //       TargetOriginId: 'STRING_VALUE', /* required */
-              //       ViewerProtocolPolicy: allow-all | https-only | redirect-to-https, /* required */
-              //       AllowedMethods: {
-              //         Items: [ /* required */
-              //           GET | HEAD | POST | PUT | PATCH | OPTIONS | DELETE,
-              //           /* more items */
-              //         ],
-              //         Quantity: 'NUMBER_VALUE', /* required */
-              //         CachedMethods: {
-              //           Items: [ /* required */
-              //             GET | HEAD | POST | PUT | PATCH | OPTIONS | DELETE,
-              //             /* more items */
-              //           ],
-              //           Quantity: 'NUMBER_VALUE' /* required */
-              //         }
-              //       },
-              //       CachePolicyId: 'STRING_VALUE',
-              //       Compress: true || false,
-              //       DefaultTTL: 'NUMBER_VALUE',
-              //       FieldLevelEncryptionId: 'STRING_VALUE',
-              //       ForwardedValues: {
-              //         Cookies: { /* required */
-              //           Forward: none | whitelist | all, /* required */
-              //           WhitelistedNames: {
-              //             Quantity: 'NUMBER_VALUE', /* required */
-              //             Items: [
-              //               'STRING_VALUE',
-              //               /* more items */
-              //             ]
-              //           }
-              //         },
-              //         QueryString: true || false, /* required */
-              //         Headers: {
-              //           Quantity: 'NUMBER_VALUE', /* required */
-              //           Items: [
-              //             'STRING_VALUE',
-              //             /* more items */
-              //           ]
-              //         },
-              //         QueryStringCacheKeys: {
-              //           Quantity: 'NUMBER_VALUE', /* required */
-              //           Items: [
-              //             'STRING_VALUE',
-              //             /* more items */
-              //           ]
-              //         }
-              //       },
-              //       LambdaFunctionAssociations: {
-              //         Quantity: 'NUMBER_VALUE', /* required */
-              //         Items: [
-              //           {
-              //             EventType: viewer-request | viewer-response | origin-request | origin-response, /* required */
-              //             LambdaFunctionARN: 'STRING_VALUE', /* required */
-              //             IncludeBody: true || false
-              //           },
-              //           /* more items */
-              //         ]
-              //       },
-              //       MaxTTL: 'NUMBER_VALUE',
-              //       MinTTL: 'NUMBER_VALUE',
-              //       OriginRequestPolicyId: 'STRING_VALUE',
-              //       RealtimeLogConfigArn: 'STRING_VALUE',
-              //       SmoothStreaming: true || false,
-              //       TrustedKeyGroups: {
-              //         Enabled: true || false, /* required */
-              //         Quantity: 'NUMBER_VALUE', /* required */
-              //         Items: [
-              //           'STRING_VALUE',
-              //           /* more items */
-              //         ]
-              //       },
-              //       TrustedSigners: {
-              //         Enabled: true || false, /* required */
-              //         Quantity: 'NUMBER_VALUE', /* required */
-              //         Items: [
-              //           'STRING_VALUE',
-              //           /* more items */
-              //         ]
-              //       }
-              //     },
-              //     /* more items */
-              //   ]
-              // },
-              CustomErrorResponses: {
+              Aliases: {
                 Quantity: 1 /* required */,
+                Items: [`${namespace}.teia.dev`],
+              },
+              // },
+              CacheBehaviors: {
+                Quantity: 0,
+              },
+              CustomErrorResponses: {
+                Quantity: 2,
                 Items: [
                   {
-                    ErrorCode: 404 /* required */,
-                    //   ErrorCachingMinTTL: 'NUMBER_VALUE',
+                    ErrorCode: 404,
+                    ErrorCachingMinTTL: 300,
                     ResponseCode: "200",
                     ResponsePagePath: "/index.html",
                   },
-                  /* more items */
+                  {
+                    ErrorCode: 403,
+                    ErrorCachingMinTTL: 300,
+                    ResponseCode: "200",
+                    ResponsePagePath: "/index.html",
+                  },
                 ],
               },
               DefaultRootObject: "STRING_VALUE",
-              HttpVersion: "http2",
+              HttpVersion: "HTTP2",
               IsIPV6Enabled: true,
               // Logging: {
               //   Bucket: 'STRING_VALUE', /* required */
@@ -267,8 +160,9 @@ async function run(): Promise<void> {
               //   IncludeCookies: true || false, /* required */
               //   Prefix: 'STRING_VALUE' /* required */
               // },
-              // OriginGroups: {
-              //   Quantity: 'NUMBER_VALUE', /* required */
+              OriginGroups: {
+                Quantity: 0, //required
+              },
               //   Items: [
               //     {
               //       FailoverCriteria: { /* required */
@@ -294,7 +188,7 @@ async function run(): Promise<void> {
               //     /* more items */
               //   ]
               // },
-              // PriceClass: PriceClass_100 | PriceClass_200 | PriceClass_All,
+              PriceClass: "PriceClass_All",
               // Restrictions: {
               //   GeoRestriction: { /* required */
               //     Quantity: 'NUMBER_VALUE', /* required */
@@ -309,12 +203,12 @@ async function run(): Promise<void> {
               //   ACMCertificateArn: 'STRING_VALUE',
               //   Certificate: 'STRING_VALUE',
               //   CertificateSource: cloudfront | iam | acm,
-              //   CloudFrontDefaultCertificate: true || false,
-              //   IAMCertificateId: 'STRING_VALUE',
+              //   CloudFrontDefaultCertificate: false,
+              //   IAMCertificateId: '4f32e5ba-82b6-4c34-9ec2-ac1cf23d0dd3',
               //   MinimumProtocolVersion: SSLv3 | TLSv1 | TLSv1_2016 | TLSv1.1_2016 | TLSv1.2_2018 | TLSv1.2_2019,
               //   SSLSupportMethod: sni-only | vip | static-ip
               // },
-              // WebACLId: 'STRING_VALUE'
+              WebACLId: "",
             },
             Tags: {
               Items: [

@@ -176,6 +176,7 @@ async function run(): Promise<void> {
                 ACMCertificateArn: certificateId,
                 Certificate: certificateId,
                 CertificateSource: "acm",
+                SSLSupportMethod: "sni-only",
                 MinimumProtocolVersion: "TLSv1.1_2016",
               },
               WebACLId: "",

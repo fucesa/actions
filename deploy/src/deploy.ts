@@ -152,9 +152,9 @@ async function run(): Promise<void> {
                 ],
               },
               // Aliases: {
-              //   Quantity: "NUMBER_VALUE" /* required */,
+              //   Quantity: 1 /* required */,
               //   Items: [
-              //     "STRING_VALUE",
+              //     `${namespace}.teia.dev`,
               //     /* more items */
               //   ],
               // },

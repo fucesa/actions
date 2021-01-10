@@ -201,14 +201,18 @@ async function run(): Promise<void> {
       console.log(routeData);
     }
 
-    const comment = await octokit.issues.createComment({
-      owner,
-      repo: github.context.issue.repo,
-      issue_number: github.context.issue.number,
-      body: `Deployed
+    const comment = await octokit.issues
+      .createComment({
+        ...github.context.issue,
+        issue_number: github.context.issue.number,
+        body: `Deployed
 URL: https://${alias}
 Distribution ID: ${existingDistributionId}`,
-    });
+      })
+      .catch((error) => {
+        console.log(error);
+        return undefined;
+      });
 
     console.log("comment");
     console.log(comment);

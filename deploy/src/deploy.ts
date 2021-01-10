@@ -36,7 +36,7 @@ async function run(): Promise<void> {
                     Quantity: 2,
                   },
                 },
-                //   CachePolicyId: 'STRING_VALUE',
+                CachePolicyId: "658327ea-f89d-4fab-a63d-7e88639e58f6",
                 Compress: true,
                 //   DefaultTTL: 'NUMBER_VALUE',
                 FieldLevelEncryptionId: "",
@@ -138,13 +138,13 @@ async function run(): Promise<void> {
                 Items: [
                   {
                     ErrorCode: 404,
-                    ErrorCachingMinTTL: 300,
+                    ErrorCachingMinTTL: 86400,
                     ResponseCode: "200",
                     ResponsePagePath: "/index.html",
                   },
                   {
                     ErrorCode: 403,
-                    ErrorCachingMinTTL: 300,
+                    ErrorCachingMinTTL: 86400,
                     ResponseCode: "200",
                     ResponsePagePath: "/index.html",
                   },

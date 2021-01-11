@@ -51,10 +51,16 @@ async function run(): Promise<void> {
         return true;
       }
     );
+    const previousDeployCommentBody = previousDeployComment?.body ?? "";
+    const previousDeployCommentId = previousDeployComment?.id ?? "";
 
-    let distributionId = (previousDeployComment.body as string)
-      .match(/<!--.*-->/g)?.[0]
-      .match(/(\w|\d)*/g)?.[0];
+    console.log(previousDeployCommentBody.match(/<!--.*-->/g)?.[0]);
+    console.log(
+      previousDeployCommentBody.match(/<!--.*-->/g)?.[0].match(/(\w|\d)*/g)
+    );
+    let distributionId = previousDeployCommentBody
+      .match(/<!--.*-->/g)[0]
+      .match(/(\w|\d)*/g)[0];
 
     console.log("DIST ID...", distributionId);
 
@@ -218,9 +224,9 @@ async function run(): Promise<void> {
 | **URL** | https://${alias} |
 | Time | ${new Date().toISOString()} |
 <!-- ${distributionId} -->`;
-    if (previousDeployComment) {
+    if (previousDeployCommentId) {
       comment = await octokit.issues.updateComment({
-        comment_id: previousDeployComment.id,
+        comment_id: previousDeployCommentId,
         ...github.context.issue,
         body: commentBody,
       });

@@ -52,15 +52,11 @@ async function run(): Promise<void> {
       }
     );
 
-    console.log(previousDeployComment.body);
-    console.log(typeof previousDeployComment.body);
-    console.log(
-      "DIST ID...",
-      (previousDeployComment.body as string).match(/<!--.*-->/g)
-    );
-    let distributionId = "EBIT5IZWT1WEF";
+    let distributionId = (previousDeployComment.body as string)
+      .match(/<!--.*-->/g)?.[0]
+      .match(/(\w|\d)*/g)?.[0];
 
-    // console.log(previousDeployComment);
+    console.log("DIST ID...", distributionId);
 
     if (distributionId) {
       const existingDistributionData: any = await cloudfront

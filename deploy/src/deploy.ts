@@ -37,7 +37,6 @@ async function run(): Promise<void> {
     console.log("Certificate ID", certificateId);
 
     // TODO: Get distribution ID from comments
-    const distributionId = "EBIT5IZWT1WEF";
     const comments = await octokit.issues
       .listComments({
         ...github.context.issue,
@@ -52,6 +51,8 @@ async function run(): Promise<void> {
         return true;
       }
     );
+    console.log("DIST ID", previousDeployComment.body.match(/<!-- .* -->/g));
+    const distributionId = "EBIT5IZWT1WEF";
 
     console.log(previousDeployComment);
 
@@ -207,20 +208,29 @@ async function run(): Promise<void> {
       console.log(routeData);
     }
 
-    const comment = await octokit.issues
-      .createComment({
-        ...github.context.issue,
-        issue_number: github.context.issue.number,
-        body: `
+    let comment;
+    const commentBody = `
 ### Deploy 🚀
 
 | Key | Value |
 | --- | --- |
-| URL | https://${alias} |
-| Distribution | ${existingDistributionId} |
-| Time | ${new Date().toISOString()} |`,
-      })
-      .catch(() => undefined);
+| **URL** | https://${alias} |
+| Time | ${new Date().toISOString()} |`;
+    if (previousDeployComment) {
+      comment = await octokit.issues.updateComment({
+        comment_id: previousDeployComment.id,
+        ...github.context.issue,
+        body: commentBody,
+      });
+    } else {
+      comment = await octokit.issues
+        .createComment({
+          ...github.context.issue,
+          issue_number: github.context.issue.number,
+          body: commentBody,
+        })
+        .catch(() => undefined);
+    }
 
     console.log("comment");
     console.log(comment);

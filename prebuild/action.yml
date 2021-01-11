@@ -17,8 +17,10 @@ outputs:
     description: "Current git branch."
   namespace:
     description: "Suggested namespace for deployment."
-  isPreview:
+  is-preview:
     description: "Suggests that the current build is not a regular deployment."
+  should-deploy-preview:
+    description: "Suggests that based on configuration the environment is suitable for a deployment"
 runs:
   using: "node12"
   main: "dist/prebuild/index.js"

@@ -83,7 +83,11 @@ async function run(): Promise<void> {
     let namespace = createNamespace(branch, getData().name);
     if (releaseBranches.includes(branch)) {
       namespace = branch;
-    } else {
+    }
+
+    let shouldDeployPreview = false;
+    const isPreview = namespace !== branch;
+    if (isPreview) {
       const octokit = github.getOctokit(String(repoToken));
 
       const pull = await octokit.pulls.get({
@@ -91,7 +95,7 @@ async function run(): Promise<void> {
         pull_number: github.context.issue.number,
       });
 
-      console.log(pull);
+      shouldDeployPreview = pull?.data?.body?.includes("[x] Deploy") ?? false;
     }
 
     console.log("Version: ", appVersion);
@@ -101,7 +105,8 @@ async function run(): Promise<void> {
     core.setOutput("app-version", appVersion);
     core.setOutput("branch", branch);
     core.setOutput("namespace", namespace);
-    core.setOutput("isPreview", namespace !== branch);
+    core.setOutput("is-preview", isPreview);
+    core.setOutput("should-deploy-preview", shouldDeployPreview);
   } catch (error) {
     core.setFailed(`Debug-action failure: ${error}`);
   }

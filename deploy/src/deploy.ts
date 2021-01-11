@@ -54,7 +54,10 @@ async function run(): Promise<void> {
 
     console.log(previousDeployComment.body);
     console.log(typeof previousDeployComment.body);
-    console.log("DIST ID...", previousDeployComment.body.match(/<!-- .* -->/g));
+    console.log(
+      "DIST ID...",
+      (previousDeployComment.body as string).match(/<!--.*-->/g)
+    );
     let distributionId = "EBIT5IZWT1WEF";
 
     // console.log(previousDeployComment);
@@ -172,6 +175,8 @@ async function run(): Promise<void> {
         throw new Error("Could not get cloudfront domain name");
       }
 
+      distributionId = String(distributionResult.Distribution?.Id);
+
       const routeData: ChangeResourceRecordSetsResponse = await new Promise(
         (resolve, reject) =>
           route53.changeResourceRecordSets(
@@ -216,7 +221,7 @@ async function run(): Promise<void> {
 | --- | --- |
 | **URL** | https://${alias} |
 | Time | ${new Date().toISOString()} |
-<!-- Upload files here... -->`;
+<!-- ${distributionId} -->`;
     if (previousDeployComment) {
       comment = await octokit.issues.updateComment({
         comment_id: previousDeployComment.id,

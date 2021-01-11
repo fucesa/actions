@@ -51,25 +51,25 @@ async function run(): Promise<void> {
         return true;
       }
     );
-    console.log("DIST ID", previousDeployComment.body.match(/<!-- .* -->/g));
-    const distributionId = "EBIT5IZWT1WEF";
 
-    console.log(previousDeployComment);
+    console.log(previousDeployComment.body);
+    console.log(typeof previousDeployComment.body);
+    console.log("DIST ID...", previousDeployComment.body.match(/<!-- .* -->/g));
+    let distributionId = "EBIT5IZWT1WEF";
 
-    // TODO: check if distribution already exists
-    const existingDistributionData: GetDistributionResult = await new Promise(
-      (resolve, reject) =>
-        cloudfront.getDistribution({ Id: distributionId }, (error, data) =>
-          error ? reject(error) : resolve(data)
-        )
-    );
+    // console.log(previousDeployComment);
 
-    console.log("existingDistributionData");
-    console.log(existingDistributionData);
-    let existingDistributionId = existingDistributionData.Distribution?.Id;
+    if (distributionId) {
+      const existingDistributionData: any = await cloudfront
+        .getDistribution({ Id: distributionId })
+        .promise()
+        .catch(() => undefined);
+
+      distributionId = existingDistributionData.Distribution?.Id ?? "";
+    }
 
     let distributionResult: CreateDistributionWithTagsResult;
-    if (!existingDistributionId) {
+    if (!distributionId) {
       distributionResult = await new Promise((resolve, reject) =>
         cloudfront.createDistributionWithTags(
           {
@@ -215,7 +215,8 @@ async function run(): Promise<void> {
 | Key | Value |
 | --- | --- |
 | **URL** | https://${alias} |
-| Time | ${new Date().toISOString()} |`;
+| Time | ${new Date().toISOString()} |
+<!-- Upload files here... -->`;
     if (previousDeployComment) {
       comment = await octokit.issues.updateComment({
         comment_id: previousDeployComment.id,

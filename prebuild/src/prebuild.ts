@@ -1,6 +1,7 @@
 import * as childProcess from "child_process";
 import * as path from "path";
 
+import * as github from "@actions/github";
 import * as core from "@actions/core";
 
 // https://github.com/Saionaro/extract-package-version/blob/master/src/extract-version.js
@@ -57,6 +58,8 @@ function createNamespace(branchName: string, projectName: string) {
 async function run(): Promise<void> {
   try {
     const productionBranch = core.getInput("production-branch")?.trim();
+    const repoToken =
+      core.getInput("repo-token") || process.env["GITHUB_TOKEN"];
     const releaseBranches = JSON.parse(
       core.getInput("release-branches")?.trim() ?? "[]"
     ) as String[];
@@ -80,6 +83,15 @@ async function run(): Promise<void> {
     let namespace = createNamespace(branch, getData().name);
     if (releaseBranches.includes(branch)) {
       namespace = branch;
+    } else {
+      const octokit = github.getOctokit(String(repoToken));
+
+      const pull = await octokit.pulls.get({
+        ...github.context.issue,
+        pull_number: github.context.issue.number,
+      });
+
+      console.log(pull);
     }
 
     console.log("Version: ", appVersion);

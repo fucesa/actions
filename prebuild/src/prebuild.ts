@@ -87,8 +87,9 @@ async function run(): Promise<void> {
 
     let shouldDeployPreview = false;
     const isPreview = namespace !== branch;
-    if (isPreview) {
-      const octokit = github.getOctokit(String(repoToken));
+    console.log({ namespace, branch, isPreview });
+    if (isPreview && repoToken) {
+      const octokit = github.getOctokit(repoToken);
 
       const pull = await octokit.pulls.get({
         ...github.context.issue,
@@ -96,6 +97,11 @@ async function run(): Promise<void> {
       });
 
       shouldDeployPreview = pull?.data?.body?.includes("[x] Deploy") ?? false;
+      console.log({
+        body: pull?.data?.body,
+        includes: pull?.data?.body?.includes("[x] Deploy"),
+        shouldDeployPreview,
+      });
     }
 
     console.log("Version: ", appVersion);

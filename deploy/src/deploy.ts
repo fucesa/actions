@@ -54,13 +54,10 @@ async function run(): Promise<void> {
     const previousDeployCommentBody = previousDeployComment?.body ?? "";
     const previousDeployCommentId = previousDeployComment?.id ?? "";
 
-    console.log(previousDeployCommentBody.match(/<!--.*-->/g)?.[0]);
-    console.log(
-      previousDeployCommentBody.match(/<!--.*-->/g)?.[0].match(/(\w|\d)*/g)
-    );
     let distributionId = previousDeployCommentBody
-      .match(/<!--.*-->/g)[0]
-      .match(/(\w|\d)*/g)[0];
+      .match(/<!--.*-->/g)?.[0]
+      .match(/(\w|\d)*/g)
+      ?.filter(Boolean)?.[0];
 
     console.log("DIST ID...", distributionId);
 
